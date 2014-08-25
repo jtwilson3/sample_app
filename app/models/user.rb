@@ -10,6 +10,8 @@ class User < ActiveRecord::Base
 	validates :name, presence: true, length: { maximum: 50 }
 	VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 	validates :email, presence: true, format: { with: VALID_EMAIL_REGEX }, uniqueness: { case_sensitive: false }
+	VALID_HANDLE_REGEX = /\A[A-Za-z0-9_]{3,15}\Z/i
+	validates :handle, presence: true, length: { minimum: 3, maximum: 15 }, format: { with: VALID_HANDLE_REGEX }, uniqueness: { case_sensitive: false }
 
 	has_secure_password
 	validates :password, length: { minimum: 6 }

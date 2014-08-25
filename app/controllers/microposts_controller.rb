@@ -21,7 +21,8 @@ class MicropostsController < ApplicationController
 	private
 
 		def micropost_params
-			params.require(:micropost).permit(:content)
+			params[:micropost][:in_reply_to] = params[:micropost][:content].to_s.scan(/@([A-Za-z0-9_]{3,15})(?![.A-Za-z])/).join(", ")
+			params.require(:micropost).permit(:content, :in_reply_to)
 		end
 
 		def correct_user

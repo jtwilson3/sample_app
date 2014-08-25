@@ -11,16 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140818175349) do
+ActiveRecord::Schema.define(version: 20140825181834) do
 
-  create_table "microposts", force: true do |t|
-    t.string   "content"
-    t.integer  "user_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "microposts", ["user_id", "created_at"], name: "index_microposts_on_user_id_and_created_at"
+# Could not dump table "microposts" because of following NoMethodError
+#   undefined method `[]' for nil:NilClass
 
   create_table "relationships", force: true do |t|
     t.integer  "follower_id"
@@ -41,9 +35,11 @@ ActiveRecord::Schema.define(version: 20140818175349) do
     t.string   "password_digest"
     t.string   "remember_token"
     t.boolean  "admin",           default: false
+    t.string   "handle"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true
+  add_index "users", ["handle"], name: "index_users_on_handle"
   add_index "users", ["remember_token"], name: "index_users_on_remember_token"
 
 end

@@ -3,7 +3,7 @@ require 'spec_helper'
 describe User do
 
 	before do
-		@user = User.new(name: "Example User", email: "user@example.com", password: "foobar", password_confirmation: "foobar")
+		@user = User.new(name: "Example User", email: "user@example.com", password: "foobar", password_confirmation: "foobar", handle: "example")
 	end
 
 	subject { @user }
@@ -14,6 +14,7 @@ describe User do
 	it { should respond_to(:password) }
 	it { should respond_to(:password_confirmation) }
 	it { should respond_to(:remember_token) }
+	it { should respond_to(:handle) }
 	it { should respond_to(:authenticate) }
 	it { should respond_to(:admin) }
 	it { should respond_to(:microposts) }
@@ -119,6 +120,59 @@ describe User do
 	describe "remember token" do
 		before { @user.save }
 		its(:remember_token) { should_not be_blank }
+	end
+
+	describe "when handle is not present" do
+		before { @user.handle = " " }
+		it { should_not be_valid }
+	end
+
+	describe "when handle format is invalid" do
+		it "should be invalid" do
+			handles = %w[blah!blah something- something-else with@ @wrong]
+			handles.each do |invalid_handle|
+				@user.handle = invalid_handle
+				expect(@user).not_to be_valid
+			end
+		end
+	end
+
+	describe "when handle format is valid" do
+		it "should be valid" do
+			handles = %w[blah_blah _something something_else another_thing_d]
+			handles.each do |valid_handle|
+				@user.handle = valid_handle
+				expect(@user).to be_valid
+			end
+		end
+	end
+
+	describe "when handle is already taken" do
+		before do
+			user_with_same_handle = @user.dup
+			user_with_same_handle.handle = @user.handle.upcase
+			user_with_same_handle.save
+		end
+
+		it { should_not be_valid }
+	end
+
+	describe "when handle is too short" do
+		before { @user.handle = "a" * 2 }
+		it { should_not be_valid }
+	end
+
+	describe "when handle is too long" do
+		before { @user.handle = "a" * 16 }
+		it { should_not be_valid }
+	end
+
+	describe "in reply to micropost" do
+		let(:other_user) { FactoryGirl.create(:user) }
+		let(:reply_micropost) { FactoryGirl.create(:micropost, user: other_user, in_reply_to: @user.handle) }
+		before { @user.save }
+		its(:feed) { should include(reply_micropost) }
+		its(:followed_users) { should_not include(other_user) }
 	end
 
 	describe "micropost associations" do
